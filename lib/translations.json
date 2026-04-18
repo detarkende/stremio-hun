@@ -1,0 +1,53 @@
+{
+  "catalogs": {
+    "search": {
+      "results": "Találatok"
+    },
+    "popular": "Népszerű",
+    "trending_today": "Ma népszerű",
+    "trending_week": "A héten népszerű",
+    "series": {
+      "genres": {
+        "ACTION_ADVENTURE": "Akció és kaland sorozatok",
+        "ANIMATION": "Animációs sorozatok",
+        "COMEDY": "Vígjáték sorozatok",
+        "CRIME": "Bűnügyi sorozatok",
+        "DOCUMENTARY": "Dokumentum sorozatok",
+        "DRAMA": "Drámai sorozatok",
+        "FAMILY": "Családi sorozatok",
+        "KIDS": "Gyerek sorozatok",
+        "MYSTERY": "Rejtély sorozatok",
+        "NEWS": "Hírek",
+        "REALITY": "Valóságshowk",
+        "SCI_FI_FANTASY": "Sci-Fi és fantasy sorozatok",
+        "SOAP": "Szappanoperák",
+        "TALK": "Talk show-k",
+        "WAR_POLITICS": "Háborús és politikai sorozatok",
+        "WESTERN": "Western sorozatok"
+      }
+    },
+    "movies": {
+      "genres": {
+        "ACTION": "Akció filmek",
+        "ADVENTURE": "Kaland filmek",
+        "ANIMATION": "Animációs filmek",
+        "COMEDY": "Vígjátékok",
+        "CRIME": "Krimik",
+        "DOCUMENTARY": "Dokumentum filmek",
+        "DRAMA": "Drámai filmek",
+        "FAMILY": "Családi filmek",
+        "FANTASY": "Fantasy filmek",
+        "HISTORY": "Történelmi filmek",
+        "HORROR": "Horror filmek",
+        "MUSIC": "Zenei filmek",
+        "MYSTERY": "Rejtély filmek",
+        "ROMANCE": "Romantikus filmek",
+        "SCIENCE_FICTION": "Sci-Fi filmek",
+        "TV_MOVIE": "TV filmek",
+        "THRILLER": "Thriller filmek",
+        "WAR": "Háborús filmek",
+        "WESTERN": "Western filmek"
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "lists": {
+    "netflix-daily-top10": {
+      "listId": "125685",
+      "name": "Netflix Magyarország - Napi top 10"
+    },
+    "hbo-max-daily-top10": {
+      "listId": "125868",
+      "name": "HBO Max Magyarország - Napi top 10"
+    },
+    "disney-plus-daily-top10": {
+      "listId": "125869",
+      "name": "Disney+ Magyarország - Napi top 10"
+    },
+    "amazon-prime-video-daily-top10": {
+      "listId": "125870",
+      "name": "Amazon Prime Magyarország - Napi top 10"
+    },
+    "apple-tv-plus-daily-top10": {
+      "listId": "125871",
+      "name": "Apple TV+ Magyarország - Napi top 10"
+    }
+  }
+}

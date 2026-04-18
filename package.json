@@ -1,0 +1,27 @@
+{
+  "name": "stremio-hun",
+  "description": "A Stremio addon for Hungarian content.",
+  "version": "0.0.1",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@standard-schema/spec": "^1.1.0",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^6.0.2"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.7.6",
+    "@node-fetch-cache/redis": "^1.0.0",
+    "hono": "^4.12.9",
+    "node-fetch-cache": "^5.1.0",
+    "tmdb-ts": "^2.3.0",
+    "zod": "^4.3.6"
+  },
+  "patchedDependencies": {
+    "tmdb-ts@2.3.0": "patches/tmdb-ts@2.3.0.patch",
+    "undici@8.1.0": "patches/undici@8.1.0.patch"
+  }
+}
