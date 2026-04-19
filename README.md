@@ -34,16 +34,16 @@ A Stremio addon that provides Hungarian-language metadata and curated catalogs f
 
 ### Environment Variables
 
-| Variable             | Required    | Default                  | Description                                                            |
-| -------------------- | ----------- | ------------------------ | ---------------------------------------------------------------------- |
-| `ADDON_URL`          | Yes         | —                        | Public URL where the addon is hosted                                   |
-| `TMDB_ACCESS_TOKEN`  | Yes         | —                        | TMDB API access token                                                  |
-| `MDBLIST_API_KEY`    | Yes         | —                        | MDBList API key                                                        |
-| `DB_PATH`            | Conditional | `/data/database.db`      | Path to SQLite database file; required outside Docker unless provided  |
-| `PORT`               | No          | `3000`                   | Server port                                                            |
-| `TMDB_LANGUAGE`      | No          | `hu-HU`                  | TMDB language code                                                     |
-| `RATE_LIMIT_ENABLED` | No          | `true`                   | Enable rate limiting                                                   |
-| `HTTP_CACHE_ENABLED` | No          | `true`                   | Enable HTTP response caching                                           |
+| Variable             | Required    | Default             | Description                                                           |
+| -------------------- | ----------- | ------------------- | --------------------------------------------------------------------- |
+| `ADDON_URL`          | Yes         | —                   | Public URL where the addon is hosted                                  |
+| `TMDB_ACCESS_TOKEN`  | Yes         | —                   | TMDB API access token                                                 |
+| `MDBLIST_API_KEY`    | Yes         | —                   | MDBList API key                                                       |
+| `DB_PATH`            | Conditional | `/data/database.db` | Path to SQLite database file; required outside Docker unless provided |
+| `PORT`               | No          | `3000`              | Server port                                                           |
+| `TMDB_LANGUAGE`      | No          | `hu-HU`             | TMDB language code                                                    |
+| `RATE_LIMIT_ENABLED` | No          | `true`              | Enable rate limiting                                                  |
+| `HTTP_CACHE_ENABLED` | No          | `true`              | Enable HTTP response caching                                          |
 
 ### Run with Docker
 
