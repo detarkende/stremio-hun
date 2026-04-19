@@ -1,21 +1,17 @@
 {
   "name": "stremio-hun",
-  "description": "A Stremio addon for Hungarian content.",
   "version": "0.0.1",
-  "module": "index.ts",
-  "type": "module",
   "private": true,
+  "description": "A Stremio addon for Hungarian content.",
+  "type": "module",
+  "module": "index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "dev": "DB_PATH=./tmp/database.sqlite node --import=tsx --watch --env-file-if-exists=.env index.ts"
-  },
-  "devDependencies": {
-    "@standard-schema/spec": "^1.1.0",
-    "@types/node": "^25.6.0",
-    "typescript": "^6.0.3"
-  },
-  "peerDependencies": {
-    "typescript": "^6.0.2"
+    "dev": "DB_PATH=./tmp/database.sqlite node --import=tsx --watch --env-file-if-exists=.env index.ts",
+    "lint:check": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt:check": "oxfmt --check",
+    "fmt:fix": "oxfmt"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.14",
@@ -26,6 +22,16 @@
     "tsx": "^4.21.0",
     "undici": "^8.1.0",
     "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@standard-schema/spec": "^1.1.0",
+    "@types/node": "^25.6.0",
+    "oxfmt": "^0.45.0",
+    "oxlint": "^1.60.0",
+    "typescript": "^6.0.3"
+  },
+  "peerDependencies": {
+    "typescript": "^6.0.2"
   },
   "patchedDependencies": {
     "tmdb-ts@2.3.0": "patches/tmdb-ts@2.3.0.patch",
