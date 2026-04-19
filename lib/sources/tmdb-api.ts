@@ -1,18 +1,19 @@
-import { env } from "../../utils/env.ts";
 import { TMDB, type Images } from "tmdb-ts";
+
+import { env } from "../../utils/env.ts";
+import { fetch } from "../../utils/http-cache.ts";
+import { AddonMediaType } from "../constants.ts";
+import type { MetaDetail, MetaPreview } from "../stremio.types.ts";
 import { TMDB_PAGE_SIZE } from "./constants.ts";
-import type { MDBListCatalogNames, TmdbMovieResults, TmdbTvShowResults } from "./types.ts";
 import {
   tmdbMovieToMetaPreview,
   tmdbMovieToStremioMeta,
   tmdbTvShowToMetaPreview,
   tmdbTvShowToStremioMeta,
 } from "./converters.ts";
-import type { MetaDetail, MetaPreview } from "../stremio.types.ts";
-import { getMdblisListById } from "./mdblist-sdk.ts";
 import mdbListConfig from "./mdblist-lists.json" with { type: "json" };
-import { AddonMediaType } from "../constants.ts";
-import { fetch } from "../../utils/http-cache.ts";
+import { getMdblisListById } from "./mdblist-sdk.ts";
+import type { MDBListCatalogNames, TmdbMovieResults, TmdbTvShowResults } from "./types.ts";
 
 export const tmdb = new TMDB(env.TMDB_ACCESS_TOKEN, {
   // type assertion: tmdb-ts is inferring the type of fetch from the global scope, but when running in Node, the global fetch is different from undici's fetch. Since tmdb-ts only uses fetch for making HTTP requests, we can safely assert that the type is compatible.

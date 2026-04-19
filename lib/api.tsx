@@ -1,7 +1,10 @@
-import { Hono } from "hono";
-import t from "./translations.json" with { type: "json" };
-import { rateLimit } from "./middlewares/rate-limit.ts";
 import { serveStatic } from "@hono/node-server/serve-static";
+import { zValidator } from "@hono/zod-validator";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+
+import { Page } from "../frontend/page.tsx";
+import { env } from "../utils/env.ts";
 import {
   getManifest,
   getMediaByImdbId,
@@ -9,8 +12,7 @@ import {
   getPopularMediaResults,
   searchMedia,
 } from "./addon.ts";
-import { cors } from "hono/cors";
-import { zValidator } from "@hono/zod-validator";
+import { rateLimit } from "./middlewares/rate-limit.ts";
 import {
   MdblistCatalogPathSchema,
   MetaHandlerImdbPathSchema,
@@ -19,8 +21,7 @@ import {
   SearchCatalogPathSchema,
 } from "./schemas.ts";
 import { getMdblistCatalog } from "./sources/index.ts";
-import { env } from "../utils/env.ts";
-import { Page } from "../frontend/page.tsx";
+import t from "./translations.json" with { type: "json" };
 
 const app = new Hono();
 

@@ -1,5 +1,6 @@
 import type { FC } from "hono/jsx";
 import type { AvailableLanguage } from "tmdb-ts";
+
 import { GlobeIcon } from "./icons/globe-icon.tsx";
 import { MonitorIcon } from "./icons/monitor-icon.tsx";
 

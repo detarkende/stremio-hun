@@ -1,11 +1,6 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 
-export type ShortManifestResource =
-  | "catalog"
-  | "meta"
-  | "stream"
-  | "subtitles"
-  | "addon_catalog";
+export type ShortManifestResource = "catalog" | "meta" | "stream" | "subtitles" | "addon_catalog";
 export type Extra = "search" | "genre" | "skip";
 export type ContentType = "movie" | "series" | "channel" | "tv";
 
@@ -68,8 +63,9 @@ export type HandlerExtraMap = {
 /**
  * Conditional type that returns the appropriate Extra type based on the handler type
  */
-export type GetHandlerExtra<T extends ShortManifestResource> =
-  T extends keyof HandlerExtraMap ? HandlerExtraMap[T] : DefaultHandlerExtra;
+export type GetHandlerExtra<T extends ShortManifestResource> = T extends keyof HandlerExtraMap
+  ? HandlerExtraMap[T]
+  : DefaultHandlerExtra;
 
 /**
  * Generic handler arguments with conditional `Extra` typing
@@ -713,12 +709,7 @@ export interface Manifest {
   stremioAddonsConfig?: StremioAddonsConfig;
 }
 
-export type ManifestConfigType =
-  | "text"
-  | "number"
-  | "password"
-  | "checkbox"
-  | "select";
+export type ManifestConfigType = "text" | "number" | "password" | "checkbox" | "select";
 
 /**
  * Addon setting.

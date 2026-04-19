@@ -1,10 +1,12 @@
+import { DatabaseSync } from "node:sqlite";
+
 import { getConnInfo } from "@hono/node-server/conninfo";
-import { createMiddleware } from "hono/factory";
-import { env } from "../../utils/env.ts";
 import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-sqlite";
-import { DatabaseSync } from "node:sqlite";
+import { createMiddleware } from "hono/factory";
+
 import { getDBPath } from "../../utils/db.ts";
+import { env } from "../../utils/env.ts";
 
 const sqlite = new DatabaseSync(getDBPath());
 const db = drizzle({ client: sqlite });

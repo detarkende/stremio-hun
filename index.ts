@@ -1,7 +1,9 @@
 import type { AddressInfo } from "node:net";
+
+import { serve } from "@hono/node-server";
+
 import { app } from "./lib/api.tsx";
 import { env } from "./utils/env.ts";
-import { serve } from "@hono/node-server";
 
 const server = serve({
   fetch: (req, env) => {

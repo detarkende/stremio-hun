@@ -1,6 +1,6 @@
 import { env } from "../../utils/env.ts";
-import type { MdblistList } from "./types.ts";
 import { fetch } from "../../utils/http-cache.ts";
+import type { MdblistList } from "./types.ts";
 
 export async function getMdblisListById(listId: string): Promise<MdblistList> {
   const searchParams = new URLSearchParams({ apikey: env.MDBLIST_API_KEY });

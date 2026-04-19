@@ -1,4 +1,5 @@
 import z from "zod";
+
 import { AddonMediaTypeList } from "./constants.ts";
 import { mdblistCatalogIds } from "./sources/index.ts";
 import type { MDBListCatalogNames } from "./sources/types.ts";
@@ -26,7 +27,7 @@ function createExtraSchema<OutputType>(schema: z.ZodType<OutputType>) {
     .refine((queryString) => {
       try {
         const query = new URLSearchParams(queryString);
-        const queryObject = Object.fromEntries([...query]);
+        const queryObject = Object.fromEntries(query);
         return schema.safeParse(queryObject).success;
       } catch {
         return false;
@@ -34,7 +35,7 @@ function createExtraSchema<OutputType>(schema: z.ZodType<OutputType>) {
     }, "Invalid search query")
     .transform((queryString) => {
       const query = new URLSearchParams(queryString);
-      const queryObject = Object.fromEntries([...query]);
+      const queryObject = Object.fromEntries(query);
       return schema.parse(queryObject);
     });
 }

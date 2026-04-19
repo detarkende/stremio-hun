@@ -1,5 +1,5 @@
-import z from "zod";
 import { AvailableLanguages } from "tmdb-ts";
+import z from "zod";
 
 const EnvSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),

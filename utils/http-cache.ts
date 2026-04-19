@@ -6,8 +6,9 @@ import {
   interceptors,
   cacheStores,
 } from "undici";
-import { env } from "./env.ts";
+
 import { getDBPath } from "./db.ts";
+import { env } from "./env.ts";
 
 const agent = new Agent().compose(
   [

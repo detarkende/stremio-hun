@@ -1,6 +1,7 @@
-import { env } from "./env.ts";
 import fs from "node:fs";
 import path from "node:path";
+
+import { env } from "./env.ts";
 
 export function getDBPath() {
   if (!fs.existsSync(env.DB_PATH)) {
