@@ -1,12 +1,25 @@
-import NodeFetchCache from "node-fetch-cache";
-import { RedisCache } from "@node-fetch-cache/redis";
-import { env } from "./env";
+import {
+  fetch as undiciFetch,
+  Agent,
+  type RequestInfo,
+  type RequestInit,
+  interceptors,
+  cacheStores,
+} from "undici";
+import { env } from "./env.ts";
+import { getDBPath } from "./db.ts";
 
-const redisUrl = new URL(env.REDIS_URL);
+const agent = new Agent().compose(
+  [
+    interceptors.retry({
+      maxRetries: 3,
+    }),
+    env.HTTP_CACHE_ENABLED &&
+      interceptors.cache({
+        store: new cacheStores.SqliteCacheStore({ location: getDBPath() }),
+      }),
+  ].filter((item) => !!item),
+);
 
-export const fetch = NodeFetchCache.create({
-  cache: new RedisCache({
-    host: redisUrl.hostname,
-    port: parseInt(redisUrl.port),
-  }),
-});
+export const fetch = (url: RequestInfo, options?: RequestInit) =>
+  undiciFetch(url, { ...options, dispatcher: agent });

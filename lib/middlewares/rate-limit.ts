@@ -1,9 +1,23 @@
-import { RedisClient } from "bun";
-import { getConnInfo } from "hono/bun";
+import { getConnInfo } from "@hono/node-server/conninfo";
 import { createMiddleware } from "hono/factory";
-import { env } from "../../utils/env";
+import { env } from "../../utils/env.ts";
+import { sql } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/node-sqlite";
+import { DatabaseSync } from "node:sqlite";
+import { getDBPath } from "../../utils/db.ts";
 
-const redis = new RedisClient(env.REDIS_URL);
+const sqlite = new DatabaseSync(getDBPath());
+const db = drizzle({ client: sqlite });
+
+db.run(sql`CREATE TABLE IF NOT EXISTS visits (
+  ip TEXT NOT NULL,
+  timestamp INTEGER NOT NULL
+) STRICT;`);
+
+db.run(sql`CREATE INDEX IF NOT EXISTS idx_visits_ip_timestamp ON visits (ip, timestamp);`);
+
+let lastCleanup = 0;
+const cleanupInterval = env.RATE_LIMIT_WINDOW;
 
 export const rateLimit = createMiddleware(async function (c, next) {
   const windowSeconds = env.RATE_LIMIT_WINDOW;
@@ -12,25 +26,29 @@ export const rateLimit = createMiddleware(async function (c, next) {
   const ip = getConnInfo(c).remote.address;
 
   if (!ip) {
-    console.warn("Could not determine client IP address for rate limiting.", getConnInfo(c));
-    // return next();
+    return c.text("Unable to determine IP address", 400);
   }
 
-  const key = `rate-limit:${ip}`;
+  const now = Math.floor(Date.now() / 1000);
+  const windowStart = now - windowSeconds;
 
-  const current = await redis.incr(key);
+  db.run(sql`INSERT INTO visits (ip, timestamp) VALUES (${ip}, ${now})`);
 
-  if (current === 1) {
-    await redis.expire(key, windowSeconds);
+  const { count } = db.get<{ count: number }>(sql`
+    SELECT COUNT(*) as count FROM visits
+    WHERE ip = ${ip} AND timestamp > ${windowStart};
+  `);
+
+  // Periodically clean up old records to prevent the table from growing indefinitely
+  if (now - lastCleanup > cleanupInterval) {
+    lastCleanup = now;
+    db.run(sql`DELETE FROM visits WHERE timestamp <= ${windowStart};`);
   }
 
-  const isLimited = current > maxRequests;
-
-  if (isLimited) {
-    const retryAfter = await redis.ttl(key);
-    return c.body(null, 429, {
-      "Retry-After": retryAfter.toString(),
-    });
+  if (count > maxRequests) {
+    c.header("Retry-After", windowSeconds.toString());
+    return c.text("Too Many Requests", 429);
   }
+
   await next();
 });

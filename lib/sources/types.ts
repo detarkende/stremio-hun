@@ -7,7 +7,7 @@ import type {
   TV,
   TvShowDetails,
 } from "tmdb-ts";
-import type { Prettify } from "../types";
+import type { Prettify } from "../types.ts";
 import mdbListLists from "./mdblist-lists.json" with { type: "json" };
 
 export type NormalizedCast = Prettify<Cast | AggregateCast>;

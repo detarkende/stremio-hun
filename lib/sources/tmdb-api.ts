@@ -1,21 +1,21 @@
-import { env } from "../../utils/env";
+import { env } from "../../utils/env.ts";
 import { TMDB, type Images } from "tmdb-ts";
-import { TMDB_PAGE_SIZE } from "./constants";
-import type { MDBListCatalogNames, TmdbMovieResults, TmdbTvShowResults } from "./types";
+import { TMDB_PAGE_SIZE } from "./constants.ts";
+import type { MDBListCatalogNames, TmdbMovieResults, TmdbTvShowResults } from "./types.ts";
 import {
   tmdbMovieToMetaPreview,
   tmdbMovieToStremioMeta,
   tmdbTvShowToMetaPreview,
   tmdbTvShowToStremioMeta,
-} from "./converters";
-import type { MetaDetail, MetaPreview } from "../stremio.types";
-import { getMdblisListById } from "./mdblist-sdk";
+} from "./converters.ts";
+import type { MetaDetail, MetaPreview } from "../stremio.types.ts";
+import { getMdblisListById } from "./mdblist-sdk.ts";
 import mdbListConfig from "./mdblist-lists.json" with { type: "json" };
-import { AddonMediaType } from "../constants";
-import { fetch } from "../../utils/http-cache";
+import { AddonMediaType } from "../constants.ts";
+import { fetch } from "../../utils/http-cache.ts";
 
 export const tmdb = new TMDB(env.TMDB_ACCESS_TOKEN, {
-  // type assertion: tmdb-ts is inferring the type of fetch from the global scope, but when running in Bun, the global fetch contains some Bun-specific extensions that cause type errors (Example: `fetch.preconnect()`)
+  // type assertion: tmdb-ts is inferring the type of fetch from the global scope, but when running in Node, the global fetch is different from undici's fetch. Since tmdb-ts only uses fetch for making HTTP requests, we can safely assert that the type is compatible.
   fetch: fetch as unknown as typeof globalThis.fetch,
 });
 const language = env.TMDB_LANGUAGE;

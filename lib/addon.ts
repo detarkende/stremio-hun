@@ -1,4 +1,4 @@
-import type { Manifest, ManifestCatalog, MetaDetail, MetaPreview } from "./stremio.types";
+import type { Manifest, ManifestCatalog, MetaDetail, MetaPreview } from "./stremio.types.ts";
 import pkg from "../package.json" with { type: "json" };
 import {
   getMovieByTmdbId,
@@ -9,11 +9,11 @@ import {
   mdbListCatalogDetails,
   searchMovies,
   searchTvShows,
-} from "./sources";
-import { env } from "../utils/env";
+} from "./sources/index.ts";
+import { env } from "../utils/env.ts";
 import t from "./translations.json" with { type: "json" };
-import type { SearchExtra, SkipExtra } from "./schemas";
-import { AddonMediaType } from "./constants";
+import type { SearchExtra, SkipExtra } from "./schemas.ts";
+import { AddonMediaType } from "./constants.ts";
 
 const popularCatalogs: ManifestCatalog[] = [
   {

@@ -1,7 +1,7 @@
 import z from "zod";
-import { AddonMediaTypeList } from "./constants";
-import { mdblistCatalogIds } from "./sources";
-import type { MDBListCatalogNames } from "./sources/types";
+import { AddonMediaTypeList } from "./constants.ts";
+import { mdblistCatalogIds } from "./sources/index.ts";
+import type { MDBListCatalogNames } from "./sources/types.ts";
 
 export const MetaHandlerTmdbPathSchema = z.object({
   type: z.enum(AddonMediaTypeList),

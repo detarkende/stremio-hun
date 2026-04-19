@@ -1,7 +1,0 @@
-# Only used for local development.
-services:
-  redis:
-    image: redis:latest
-    container_name: stremio-hun-redis
-    ports:
-      - "6379:6379"

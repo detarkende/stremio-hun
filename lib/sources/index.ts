@@ -1,2 +1,2 @@
-export * from "./tmdb-api";
-export { mdbListCatalogDetails, mdblistCatalogIds } from "./constants";
+export * from "./tmdb-api.ts";
+export { mdbListCatalogDetails, mdblistCatalogIds } from "./constants.ts";

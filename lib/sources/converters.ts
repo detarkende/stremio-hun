@@ -1,7 +1,12 @@
-import { env } from "../../utils/env";
-import type { MetaDetail, MetaLink, MetaPreview, MetaVideo } from "../stremio.types";
-import { createImageUrl, TmdbImageSizes } from "./tmdb-api";
-import type { NormalizedMovie, NormalizedTV, TmdbMovieResults, TmdbTvShowResults } from "./types";
+import { env } from "../../utils/env.ts";
+import type { MetaDetail, MetaLink, MetaPreview, MetaVideo } from "../stremio.types.ts";
+import { createImageUrl, TmdbImageSizes } from "./tmdb-api.ts";
+import type {
+  NormalizedMovie,
+  NormalizedTV,
+  TmdbMovieResults,
+  TmdbTvShowResults,
+} from "./types.ts";
 
 export function tmdbTvShowToStremioMeta(result: TmdbTvShowResults): MetaDetail {
   const { imdbId, tvShow, logoUrl, posterUrl, backdropUrl, cast, seasons } = result;

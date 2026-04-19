@@ -1,13 +1,13 @@
 import { Hono } from "hono";
-import { rateLimit } from "./middlewares/rate-limit";
-import { serveStatic } from "hono/bun";
+import { rateLimit } from "./middlewares/rate-limit.ts";
+import { serveStatic } from "@hono/node-server/serve-static";
 import {
   getManifest,
   getMediaByImdbId,
   getMediaByTmdbId,
   getPopularMediaResults,
   searchMedia,
-} from "./addon";
+} from "./addon.ts";
 import { cors } from "hono/cors";
 import { zValidator } from "@hono/zod-validator";
 import {
@@ -16,9 +16,9 @@ import {
   MetaHandlerTmdbPathSchema,
   PopularCatalogPathSchema,
   SearchCatalogPathSchema,
-} from "./schemas";
-import { getMdblistCatalog } from "./sources";
-import { env } from "../utils/env";
+} from "./schemas.ts";
+import { getMdblistCatalog } from "./sources/index.ts";
+import { env } from "../utils/env.ts";
 
 export const api = new Hono();
 

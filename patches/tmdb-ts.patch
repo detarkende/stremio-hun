@@ -1,6 +1,3 @@
-diff --git a/node_modules/tmdb-ts/.bun-tag-21a58013f5390430 b/.bun-tag-21a58013f5390430
-new file mode 100644
-index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/dist/endpoints/movies.d.ts b/dist/endpoints/movies.d.ts
 index 8a62ecbd2137f24ea7d00bacca3a28a717085e90..d5ab6b598d804dae84345ede9777337fbfade12d 100644
 --- a/dist/endpoints/movies.d.ts
@@ -15,7 +12,7 @@ index 8a62ecbd2137f24ea7d00bacca3a28a717085e90..d5ab6b598d804dae84345ede9777337f
      changes(id: number, options?: ChangeOption): Promise<Changes<MovieChangeValue>>;
      credits(id: number, options?: LanguageOption): Promise<Credits>;
 diff --git a/dist/endpoints/movies.js b/dist/endpoints/movies.js
-index 896a3784e370519972df2848655615ff61b9f258..a0c4214b1958c016cdb0e93821dd7e88c87fd47e 100644
+index 896a3784e370519972df2848655615ff61b9f258..96ee1d87843961a2c0c5bc722bb50a71b080b828 100644
 --- a/dist/endpoints/movies.js
 +++ b/dist/endpoints/movies.js
 @@ -8,12 +8,13 @@ class MoviesEndpoint extends base_1.BaseEndpoint {
@@ -29,7 +26,7 @@ index 896a3784e370519972df2848655615ff61b9f258..a0c4214b1958c016cdb0e93821dd7e88
                  ? appendToResponse.join(',')
                  : undefined,
              language: language,
-+            ...extraParams
++            ...extraParams,
          };
          return await this.api.get(`${BASE_MOVIE}/${id}`, options);
      }
@@ -47,7 +44,7 @@ index 1b1ed493364af5e629282b7037ad624bec3a46e1..7b6222480763fa1db2223b8fb43934aa
      changes(id: number, options?: ChangeOption): Promise<Changes<TvShowChangeValue>>;
      contentRatings(id: number): Promise<ContentRatings>;
 diff --git a/dist/endpoints/tv-shows.js b/dist/endpoints/tv-shows.js
-index 3174989c90b816de7dc5afa17c3bcee524d976d1..2e3a6d368a0633bcf4e140f0782ccf4248d1f708 100644
+index 3174989c90b816de7dc5afa17c3bcee524d976d1..2da30157df963bdfff3860137661eea1c7326dee 100644
 --- a/dist/endpoints/tv-shows.js
 +++ b/dist/endpoints/tv-shows.js
 @@ -8,12 +8,13 @@ class TvShowsEndpoint extends base_1.BaseEndpoint {
@@ -61,7 +58,7 @@ index 3174989c90b816de7dc5afa17c3bcee524d976d1..2e3a6d368a0633bcf4e140f0782ccf42
                  ? appendToResponse.join(',')
                  : undefined,
              language: language,
-+            ...extraParams
++            ...extraParams,
          };
          return await this.api.get(`${BASE_TV}/${id}`, options);
      }

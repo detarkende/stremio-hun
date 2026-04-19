@@ -1,24 +1,17 @@
 import z from "zod";
 import { AvailableLanguages } from "tmdb-ts";
 
-export const Environment = {
-  PRODUCTION: "production",
-  DEVELOPMENT: "development",
-  LOCAL: "local",
-} as const;
-
 const EnvSchema = z.object({
-  ENVIRONMENT: z.enum(Object.values(Environment)),
   PORT: z.coerce.number().int().positive().default(3000),
   ADDON_URL: z.url().transform((url) => url.replace(/\/+$/, "")), // Remove trailing slashes
-  REDIS_URL: z.url().default("redis://localhost:6379"),
   TMDB_ACCESS_TOKEN: z.string(),
   TMDB_LANGUAGE: z.enum(AvailableLanguages).default("hu-HU"),
-  RATE_LIMIT_WINDOW: z.coerce.number().int().positive(),
-  RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive(),
+  RATE_LIMIT_WINDOW: z.coerce.number().int().positive().default(60),
+  RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(250),
   MDBLIST_API_KEY: z.string(),
   RATE_LIMIT_ENABLED: z.stringbool().default(true),
   HTTP_CACHE_ENABLED: z.stringbool().default(true),
+  DB_PATH: z.string(),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
