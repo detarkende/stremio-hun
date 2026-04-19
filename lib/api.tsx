@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import t from "./translations.json" with { type: "json" };
 import { rateLimit } from "./middlewares/rate-limit.ts";
 import { serveStatic } from "@hono/node-server/serve-static";
 import {
@@ -19,13 +20,30 @@ import {
 } from "./schemas.ts";
 import { getMdblistCatalog } from "./sources/index.ts";
 import { env } from "../utils/env.ts";
+import { Page } from "../frontend/page.tsx";
 
-export const api = new Hono();
+const app = new Hono();
 
 if (env.RATE_LIMIT_ENABLED) {
-  api.use(rateLimit);
+  app.use(rateLimit);
 }
-api.use(cors());
+app.use(cors());
+
+app.get("/", (c) =>
+  c.html(
+    <Page
+      addonUrl={env.ADDON_URL}
+      language={env.TMDB_LANGUAGE}
+      title={t.addonPage.title}
+      description={t.addonPage.description}
+      installWebText={t.addonPage.install.web}
+      installAppText={t.addonPage.install.app}
+      logoUrl={`${env.ADDON_URL}/logo.png`}
+    />,
+  ),
+);
+
+const api = new Hono().basePath(`/${env.TMDB_LANGUAGE}`);
 
 api.get("/manifest", async (c) => {
   const manifest = await getManifest();
@@ -74,6 +92,9 @@ api.get(
 );
 
 // Serve logo and other static assets
-api.use("*", serveStatic({ root: "./static" }));
-// Redirect all other routes to the root, which serves the SPA frontend
-// api.get("*", (c) => c.redirect("/"));
+
+app.route("/api", api);
+
+app.use("*", serveStatic({ root: "./static" }));
+
+export { app };

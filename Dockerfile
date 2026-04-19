@@ -22,4 +22,4 @@ ENV DB_PATH=/data/database.db
 
 EXPOSE ${PORT}
 
-CMD [ "node", "index.ts" ]
+CMD [ "node", "--import=tsx", "index.ts" ]
