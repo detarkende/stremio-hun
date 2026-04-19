@@ -3,7 +3,7 @@ name: Pull Request CI
 on:
   pull_request:
     branches:
-      - main
+      - master
 
 permissions:
   contents: read
@@ -38,9 +38,19 @@ jobs:
       - name: Lint commit range
         run: pnpm exec commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
-  checks:
-    name: Type, format and lint checks
+  quality-checks:
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Format check
+            command: pnpm fmt:check
+          - name: Lint check
+            command: pnpm lint:check
+          - name: Type check
+            command: pnpm typecheck
 
     steps:
       - name: Check out repository
@@ -58,11 +68,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run type check
-        run: pnpm typecheck
-
-      - name: Run format check
-        run: pnpm fmt:check
-
-      - name: Run lint check
-        run: pnpm lint:check
+      - name: Run ${{ matrix.name }}
+        run: ${{ matrix.command }}
