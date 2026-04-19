@@ -12,7 +12,10 @@ const EnvSchema = z.object({
   RATE_LIMIT_ENABLED: z.stringbool().default(true),
   HTTP_CACHE_ENABLED: z.stringbool().default(true),
   DB_PATH: z.string(),
-  APP_VERSION: z.string().default("0.0.0-dev"),
+  APP_VERSION: z
+    .string()
+    .default("0.0.0-dev")
+    .transform((version) => version.replace(/^v/, "")), // Remove leading 'v' if present
 });
 
 export type Env = z.infer<typeof EnvSchema>;
