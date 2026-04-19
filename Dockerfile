@@ -14,6 +14,9 @@ FROM base AS prod
 COPY --from=prod-deps /app/node_modules /app/node_modules
 COPY . .
 
+ARG APP_VERSION=0.0.0-dev
+ENV APP_VERSION=${APP_VERSION}
+
 ENV PORT=3000
 ENV NODE_ENV=production
 ENV ENVIRONMENT=production

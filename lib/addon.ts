@@ -1,4 +1,3 @@
-import pkg from "../package.json" with { type: "json" };
 import { env } from "../utils/env.ts";
 import { AddonMediaType } from "./constants.ts";
 import type { SearchExtra, SkipExtra } from "./schemas.ts";
@@ -51,8 +50,8 @@ export async function getManifest(): Promise<Manifest> {
   return {
     id: "org.stremio.hun",
     name: "Stremio Hun",
-    description: pkg.description,
-    version: pkg.version,
+    description: "A Stremio addon for Hungarian content.",
+    version: env.APP_VERSION,
     types: [AddonMediaType.MOVIE, AddonMediaType.SERIES],
     logo: `${env.ADDON_URL}/logo.png`,
     catalogs: [
