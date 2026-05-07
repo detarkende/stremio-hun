@@ -1,4 +1,5 @@
-import { env } from "../../utils/env.ts";
+import type { SupportedLanguage } from "#translations/i18n.ts";
+
 import type { MetaDetail, MetaLink, MetaPreview, MetaVideo } from "../stremio.types.ts";
 import { createImageUrl, TmdbImageSizes } from "./tmdb-api.ts";
 import type {
@@ -8,7 +9,10 @@ import type {
   TmdbTvShowResults,
 } from "./types.ts";
 
-export function tmdbTvShowToStremioMeta(result: TmdbTvShowResults): MetaDetail {
+export function tmdbTvShowToStremioMeta(
+  result: TmdbTvShowResults,
+  language: SupportedLanguage,
+): MetaDetail {
   const { imdbId, tvShow, logoUrl, posterUrl, backdropUrl, cast, seasons } = result;
 
   const videos: MetaVideo[] = seasons.flatMap((season) =>
@@ -21,7 +25,7 @@ export function tmdbTvShowToStremioMeta(result: TmdbTvShowResults): MetaDetail {
         released: new Date(episode.air_date).toISOString(),
         overview: episode.overview,
         thumbnail: createImageUrl(episode.still_path),
-        runtime: new Intl.DurationFormat(env.TMDB_LANGUAGE, {
+        runtime: new Intl.DurationFormat(language, {
           style: "narrow",
         }).format({ minutes: episode.runtime }),
       }),

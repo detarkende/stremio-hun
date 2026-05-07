@@ -1,7 +1,9 @@
 import { TMDB, type Images } from "tmdb-ts";
 
-import { env } from "../../utils/env.ts";
-import { fetch } from "../../utils/http-cache.ts";
+import { env } from "#server/utils/env.ts";
+import { fetch } from "#server/utils/http-cache.ts";
+import { SupportedLanguages, type SupportedLanguage } from "#translations/i18n.ts";
+
 import { AddonMediaType } from "../constants.ts";
 import type { MetaDetail, MetaPreview } from "../stremio.types.ts";
 import { TMDB_PAGE_SIZE } from "./constants.ts";
@@ -19,7 +21,6 @@ export const tmdb = new TMDB(env.TMDB_ACCESS_TOKEN, {
   // type assertion: tmdb-ts is inferring the type of fetch from the global scope, but when running in Node, the global fetch is different from undici's fetch. Since tmdb-ts only uses fetch for making HTTP requests, we can safely assert that the type is compatible.
   fetch: fetch as unknown as typeof globalThis.fetch,
 });
-const language = env.TMDB_LANGUAGE;
 
 // ============================
 // === Get Media by IMDB id ===
@@ -28,6 +29,7 @@ const language = env.TMDB_LANGUAGE;
 export async function getTmdbIdByImdbId(
   imdbId: string,
   mediaType: AddonMediaType,
+  language: SupportedLanguage,
 ): Promise<number | null> {
   const result = await tmdb.find.byExternalId(imdbId, {
     language,
@@ -42,11 +44,14 @@ export async function getTmdbIdByImdbId(
 // === Get Media by TMDB id ===
 // ============================
 
-export async function getMovieByTmdbId(tmdbId: number): Promise<MetaDetail> {
+export async function getMovieByTmdbId(
+  tmdbId: number,
+  language: SupportedLanguage,
+): Promise<MetaDetail> {
   const movie = await tmdb.movies.details(tmdbId, ["credits", "external_ids", "images"], language, {
-    include_image_language: `${language},en,null`,
+    include_image_language: createImageLanguageList(language),
   });
-  const { logoUrl, backdropUrl, posterUrl } = getMediaImages(movie.images);
+  const { logoUrl, backdropUrl, posterUrl } = getMediaImages(movie.images, language);
 
   const result: TmdbMovieResults = {
     imdbId: movie.external_ids.imdb_id,
@@ -59,12 +64,15 @@ export async function getMovieByTmdbId(tmdbId: number): Promise<MetaDetail> {
   return tmdbMovieToStremioMeta(result);
 }
 
-export async function getTvShowByTmdbId(tmdbId: number): Promise<MetaDetail> {
+export async function getTvShowByTmdbId(
+  tmdbId: number,
+  language: SupportedLanguage,
+): Promise<MetaDetail> {
   const tvShow = await tmdb.tvShows.details(
     tmdbId,
     ["aggregate_credits", "external_ids", "images"],
     language,
-    { include_image_language: `${language},en,null` },
+    { include_image_language: createImageLanguageList(language) },
   );
 
   const seasons = await Promise.all(
@@ -73,7 +81,7 @@ export async function getTvShowByTmdbId(tmdbId: number): Promise<MetaDetail> {
     ),
   );
 
-  const { logoUrl, backdropUrl, posterUrl } = getMediaImages(tvShow.images);
+  const { logoUrl, backdropUrl, posterUrl } = getMediaImages(tvShow.images, language);
 
   const result: TmdbTvShowResults = {
     imdbId: tvShow.external_ids.imdb_id,
@@ -84,7 +92,7 @@ export async function getTvShowByTmdbId(tmdbId: number): Promise<MetaDetail> {
     backdropUrl,
     posterUrl,
   };
-  return tmdbTvShowToStremioMeta(result);
+  return tmdbTvShowToStremioMeta(result, language);
 }
 
 // ==============
@@ -94,9 +102,11 @@ export async function getTvShowByTmdbId(tmdbId: number): Promise<MetaDetail> {
 export async function searchMovies({
   keyword,
   skip,
+  language,
 }: {
   keyword: string;
   skip: number;
+  language: SupportedLanguage;
 }): Promise<MetaPreview[]> {
   const page = Math.floor(skip / TMDB_PAGE_SIZE) + 1;
   const { results } = await tmdb.search.movies({
@@ -111,9 +121,11 @@ export async function searchMovies({
 export async function searchTvShows({
   keyword,
   skip,
+  language,
 }: {
   keyword: string;
   skip: number;
+  language: SupportedLanguage;
 }): Promise<MetaPreview[]> {
   const page = Math.floor(skip / TMDB_PAGE_SIZE) + 1;
   const { results } = await tmdb.search.tvShows({
@@ -128,13 +140,25 @@ export async function searchTvShows({
 // === Get Popular Media ===
 // ==========================
 
-export async function getPopularTvShows({ skip }: { skip: number }): Promise<MetaPreview[]> {
+export async function getPopularTvShows({
+  skip,
+  language,
+}: {
+  skip: number;
+  language: SupportedLanguage;
+}): Promise<MetaPreview[]> {
   const page = Math.floor(skip / TMDB_PAGE_SIZE) + 1;
   const { results } = await tmdb.tvShows.popular({ language, page });
   return results.map(tmdbTvShowToMetaPreview);
 }
 
-export async function getPopularMovies({ skip }: { skip: number }): Promise<MetaPreview[]> {
+export async function getPopularMovies({
+  skip,
+  language,
+}: {
+  skip: number;
+  language: SupportedLanguage;
+}): Promise<MetaPreview[]> {
   const page = Math.floor(skip / TMDB_PAGE_SIZE) + 1;
   const { results } = await tmdb.movies.popular({ language, page });
   return results.map(tmdbMovieToMetaPreview);
@@ -144,13 +168,25 @@ export async function getPopularMovies({ skip }: { skip: number }): Promise<Meta
 // === Top Rated ===
 // =================
 
-export async function getTopRatedTvShows({ skip }: { skip: number }): Promise<MetaPreview[]> {
+export async function getTopRatedTvShows({
+  skip,
+  language,
+}: {
+  skip: number;
+  language: SupportedLanguage;
+}): Promise<MetaPreview[]> {
   const page = Math.floor(skip / TMDB_PAGE_SIZE) + 1;
   const { results } = await tmdb.tvShows.topRated({ language, page });
   return results.map(tmdbTvShowToMetaPreview);
 }
 
-export async function getTopRatedMovies({ skip }: { skip: number }): Promise<MetaPreview[]> {
+export async function getTopRatedMovies({
+  skip,
+  language,
+}: {
+  skip: number;
+  language: SupportedLanguage;
+}): Promise<MetaPreview[]> {
   const page = Math.floor(skip / TMDB_PAGE_SIZE) + 1;
   const { results } = await tmdb.movies.topRated({ language, page });
   return results.map(tmdbMovieToMetaPreview);
@@ -162,6 +198,7 @@ export async function getTopRatedMovies({ skip }: { skip: number }): Promise<Met
 export async function getMdblistCatalog(
   mediaType: AddonMediaType,
   listId: MDBListCatalogNames,
+  language: SupportedLanguage,
 ): Promise<MetaPreview[]> {
   const { movies, shows } = await getMdblisListById(mdbListConfig.lists[listId].listId);
   const media = mediaType === AddonMediaType.MOVIE ? movies : shows;
@@ -176,13 +213,13 @@ export async function getMdblistCatalog(
       const tmdbDetails =
         mediaType === "movie"
           ? await tmdb.movies.details(tmdbId, ["images", "external_ids"], language, {
-              include_image_language: `${language},en,null`,
+              include_image_language: createImageLanguageList(language),
             })
           : await tmdb.tvShows.details(tmdbId, ["images", "external_ids"], language, {
-              include_image_language: `${language},en,null`,
+              include_image_language: createImageLanguageList(language),
             });
 
-      const { logoUrl, posterUrl, backdropUrl } = getMediaImages(tmdbDetails.images);
+      const { logoUrl, posterUrl, backdropUrl } = getMediaImages(tmdbDetails.images, language);
       return {
         id: tmdbDetails.external_ids.imdb_id || item.ids.imdb,
         type: mediaType,
@@ -205,29 +242,41 @@ export async function getMdblistCatalog(
 // === Images ===
 // ======""========
 
-export function getMediaImages(images: Omit<Images, "id">) {
+export function getMediaImages(images: Omit<Images, "id">, language: SupportedLanguage) {
   const iso_639_1 = language.split("-")[0]; // Get the language code without the region (e.g., "en" from "en-US")
 
   const bestLogo =
     images.logos.find((logo) => logo.iso_639_1 === iso_639_1) ||
+    images.logos.find((logo) => logo.iso_639_1 === "en") ||
     images.logos.find((logo) => logo.iso_639_1 === null) ||
-    images.logos.find((logo) => logo.iso_639_1 === "en");
+    images.logos[0];
+
+  const bestPoster =
+    images.posters.find((poster) => poster.iso_639_1 === iso_639_1) ||
+    images.posters.find((poster) => poster.iso_639_1 === "en") ||
+    images.posters.find((poster) => poster.iso_639_1 === null) ||
+    images.posters[0];
 
   const bestBackdrop =
     images.backdrops.find((backdrop) => backdrop.iso_639_1 === null) ||
     images.backdrops.find((backdrop) => backdrop.iso_639_1 === iso_639_1) ||
-    images.backdrops.find((backdrop) => backdrop.iso_639_1 === "en");
-
-  const bestPoster =
-    images.posters.find((poster) => poster.iso_639_1 === iso_639_1) ||
-    images.posters.find((poster) => poster.iso_639_1 === null) ||
-    images.posters.find((poster) => poster.iso_639_1 === "en");
+    images.backdrops.find((backdrop) => backdrop.iso_639_1 === "en") ||
+    images.backdrops[0];
 
   return {
     logoUrl: bestLogo ? createImageUrl(bestLogo.file_path) : undefined,
     backdropUrl: bestBackdrop ? createImageUrl(bestBackdrop.file_path) : undefined,
     posterUrl: bestPoster ? createImageUrl(bestPoster.file_path) : undefined,
   };
+}
+
+export function createImageLanguageList(preferredLanguage: SupportedLanguage): string {
+  const iso_639_1 = (language: string) => language.split("-")[0];
+  const list = new Set<string>([iso_639_1(preferredLanguage), "en", "null"]);
+  for (const supportedLanguage of Object.values(SupportedLanguages)) {
+    list.add(iso_639_1(supportedLanguage));
+  }
+  return Array.from(list).join(",");
 }
 
 export const TmdbImageSizes = {

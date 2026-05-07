@@ -1,12 +1,12 @@
 import { DatabaseSync } from "node:sqlite";
 
-import { getConnInfo } from "@hono/node-server/conninfo";
 import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-sqlite";
 import { createMiddleware } from "hono/factory";
 
-import { getDBPath } from "../../utils/db.ts";
-import { env } from "../../utils/env.ts";
+import { getDBPath } from "#server/utils/db.ts";
+import { env } from "#server/utils/env.ts";
+import { getConnInfo } from "#server/utils/srvx.ts";
 
 const sqlite = new DatabaseSync(getDBPath());
 const db = drizzle({ client: sqlite });
@@ -52,5 +52,5 @@ export const rateLimit = createMiddleware(async function (c, next) {
     return c.text("Too Many Requests", 429);
   }
 
-  await next();
+  return next();
 });

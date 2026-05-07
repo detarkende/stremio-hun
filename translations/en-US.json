@@ -1,0 +1,61 @@
+{
+  "addonPage": {
+    "title": "Stremio Hun",
+    "description": "A Stremio addon with localized metadata and curated catalogs.",
+    "install": {
+      "web": "Install on Web",
+      "app": "Install in Stremio App"
+    }
+  },
+  "catalogs": {
+    "search": {
+      "results": "Search Results"
+    },
+    "popular": "Popular",
+    "trending_today": "Trending Today",
+    "trending_week": "Trending This Week",
+    "series": {
+      "genres": {
+        "ACTION_ADVENTURE": "Action & Adventure Series",
+        "ANIMATION": "Animation Series",
+        "COMEDY": "Comedy Series",
+        "CRIME": "Crime Series",
+        "DOCUMENTARY": "Documentary Series",
+        "DRAMA": "Drama Series",
+        "FAMILY": "Family Series",
+        "KIDS": "Kids Series",
+        "MYSTERY": "Mystery Series",
+        "NEWS": "News",
+        "REALITY": "Reality Shows",
+        "SCI_FI_FANTASY": "Sci-Fi & Fantasy Series",
+        "SOAP": "Soap Operas",
+        "TALK": "Talk Shows",
+        "WAR_POLITICS": "War & Politics Series",
+        "WESTERN": "Western Series"
+      }
+    },
+    "movies": {
+      "genres": {
+        "ACTION": "Action Movies",
+        "ADVENTURE": "Adventure Movies",
+        "ANIMATION": "Animation Movies",
+        "COMEDY": "Comedies",
+        "CRIME": "Crime Movies",
+        "DOCUMENTARY": "Documentaries",
+        "DRAMA": "Drama Movies",
+        "FAMILY": "Family Movies",
+        "FANTASY": "Fantasy Movies",
+        "HISTORY": "History Movies",
+        "HORROR": "Horror Movies",
+        "MUSIC": "Music Movies",
+        "MYSTERY": "Mystery Movies",
+        "ROMANCE": "Romance Movies",
+        "SCIENCE_FICTION": "Science Fiction Movies",
+        "TV_MOVIE": "TV Movies",
+        "THRILLER": "Thriller Movies",
+        "WAR": "War Movies",
+        "WESTERN": "Western Movies"
+      }
+    }
+  }
+}

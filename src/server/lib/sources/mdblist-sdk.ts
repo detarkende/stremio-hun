@@ -1,5 +1,6 @@
-import { env } from "../../utils/env.ts";
-import { fetch } from "../../utils/http-cache.ts";
+import { env } from "#server/utils/env.ts";
+import { fetch } from "#server/utils/http-cache.ts";
+
 import type { MdblistList } from "./types.ts";
 
 export async function getMdblisListById(listId: string): Promise<MdblistList> {

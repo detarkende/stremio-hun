@@ -4,9 +4,16 @@
   "description": "A Stremio addon for Hungarian content.",
   "type": "module",
   "module": "index.ts",
+  "imports": {
+    "#translations/*": "./translations/*",
+    "#client/*": "./src/client/*",
+    "#server/*": "./src/server/*"
+  },
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "node --enable-source-maps --env-file-if-exists .env dist/server/index.mjs",
     "typecheck": "tsgo --noEmit",
-    "dev": "DB_PATH=./tmp/database.sqlite node --import=tsx --watch --env-file-if-exists=.env index.ts",
     "lint:check": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt:check": "oxfmt --check",
@@ -15,12 +22,15 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@hono/node-server": "^1.19.14",
     "@hono/zod-validator": "^0.7.6",
+    "@tanstack/react-router": "^1.169.1",
     "drizzle-orm": "1.0.0-beta.22",
     "hono": "^4.12.9",
+    "lucide-react": "^1.3.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "srvx": "^0.11.15",
     "tmdb-ts": "^2.3.0",
-    "tsx": "^4.21.0",
     "undici": "^8.1.0",
     "zod": "^4.3.6"
   },
@@ -31,12 +41,21 @@
     "@semantic-release/github": "^12.0.6",
     "@semantic-release/release-notes-generator": "^14.1.0",
     "@standard-schema/spec": "^1.1.0",
+    "@tailwindcss/vite": "^4.2.4",
+    "@tanstack/react-router-devtools": "^1.166.13",
+    "@tanstack/router-plugin": "^1.167.33",
     "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "@typescript/native-preview": "7.0.0-dev.20260419.1",
+    "@vitejs/plugin-react": "^6.0.1",
     "husky": "^9.1.7",
+    "nitro": "3.0.260429-beta",
     "oxfmt": "^0.45.0",
     "oxlint": "^1.60.0",
-    "semantic-release": "^25.0.3"
+    "semantic-release": "^25.0.3",
+    "tailwindcss": "^4.2.4",
+    "vite": "^8.0.10"
   },
   "packageManager": "pnpm@10.10.0",
   "patchedDependencies": {

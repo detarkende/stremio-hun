@@ -1,3 +1,5 @@
+import { getTranslations, type SupportedLanguage } from "#translations/i18n.ts";
+
 import { env } from "../utils/env.ts";
 import { AddonMediaType } from "./constants.ts";
 import type { SearchExtra, SkipExtra } from "./schemas.ts";
@@ -12,22 +14,24 @@ import {
   searchTvShows,
 } from "./sources/index.ts";
 import type { Manifest, ManifestCatalog, MetaDetail, MetaPreview } from "./stremio.types.ts";
-import t from "./translations.json" with { type: "json" };
 
-const popularCatalogs: ManifestCatalog[] = [
-  {
-    type: AddonMediaType.MOVIE,
-    id: "popular",
-    name: t.catalogs.popular,
-    extra: [{ name: "skip" }],
-  },
-  {
-    type: AddonMediaType.SERIES,
-    id: "popular",
-    name: t.catalogs.popular,
-    extra: [{ name: "skip" }],
-  },
-];
+function getPopularCatalogs(language: SupportedLanguage): ManifestCatalog[] {
+  const t = getTranslations(language);
+  return [
+    {
+      type: AddonMediaType.MOVIE,
+      id: "popular",
+      name: t.catalogs.popular,
+      extra: [{ name: "skip" }],
+    },
+    {
+      type: AddonMediaType.SERIES,
+      id: "popular",
+      name: t.catalogs.popular,
+      extra: [{ name: "skip" }],
+    },
+  ];
+}
 
 const mdblistCatalogs: ManifestCatalog[] = mdbListCatalogDetails.flatMap(
   (catalog): ManifestCatalog[] => {
@@ -46,7 +50,8 @@ const mdblistCatalogs: ManifestCatalog[] = mdbListCatalogDetails.flatMap(
   },
 );
 
-export async function getManifest(): Promise<Manifest> {
+export async function getManifest(language: SupportedLanguage): Promise<Manifest> {
+  const t = getTranslations(language);
   return {
     id: "org.stremio.hun",
     name: "Stremio Hun",
@@ -56,7 +61,7 @@ export async function getManifest(): Promise<Manifest> {
     logo: `${env.ADDON_URL}/logo.png`,
     catalogs: [
       ...mdblistCatalogs,
-      ...popularCatalogs,
+      ...getPopularCatalogs(language),
       {
         type: AddonMediaType.SERIES,
         id: "search",
@@ -84,24 +89,26 @@ export async function getManifest(): Promise<Manifest> {
 export async function getMediaByImdbId(
   imdbId: string,
   mediaType: AddonMediaType,
+  language: SupportedLanguage,
 ): Promise<MetaDetail> {
-  const tmdbId = await getTmdbIdByImdbId(imdbId, mediaType);
+  const tmdbId = await getTmdbIdByImdbId(imdbId, mediaType, language);
   if (!tmdbId) {
     throw new Error(`TMDB ID not found for IMDb ID: ${imdbId}`);
   }
-  return await getMediaByTmdbId(tmdbId, mediaType);
+  return await getMediaByTmdbId(tmdbId, mediaType, language);
 }
 
 export async function getMediaByTmdbId(
   tmdbId: number,
   mediaType: AddonMediaType,
+  language: SupportedLanguage,
 ): Promise<MetaDetail> {
   switch (mediaType) {
     case AddonMediaType.SERIES: {
-      return await getTvShowByTmdbId(tmdbId);
+      return await getTvShowByTmdbId(tmdbId, language);
     }
     case AddonMediaType.MOVIE: {
-      return await getMovieByTmdbId(tmdbId);
+      return await getMovieByTmdbId(tmdbId, language);
     }
   }
 }
@@ -109,14 +116,15 @@ export async function getMediaByTmdbId(
 export async function searchMedia(
   type: AddonMediaType,
   extra: SearchExtra,
+  language: SupportedLanguage,
 ): Promise<MetaPreview[]> {
   const { search, skip } = extra;
   switch (type) {
     case AddonMediaType.MOVIE: {
-      return await searchMovies({ keyword: search, skip });
+      return await searchMovies({ keyword: search, skip, language });
     }
     case AddonMediaType.SERIES: {
-      return await searchTvShows({ keyword: search, skip });
+      return await searchTvShows({ keyword: search, skip, language });
     }
   }
 }
@@ -124,13 +132,14 @@ export async function searchMedia(
 export async function getPopularMediaResults(
   type: AddonMediaType,
   extra: SkipExtra,
+  language: SupportedLanguage,
 ): Promise<MetaPreview[]> {
   switch (type) {
     case AddonMediaType.MOVIE: {
-      return await getPopularMovies(extra);
+      return await getPopularMovies({ ...extra, language });
     }
     case AddonMediaType.SERIES: {
-      return await getPopularTvShows(extra);
+      return await getPopularTvShows({ ...extra, language });
     }
   }
 }
