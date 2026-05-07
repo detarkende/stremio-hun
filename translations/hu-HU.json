@@ -4,7 +4,7 @@
     "description": "A Stremio addon magyar nyelvű meta adatokkal és katalógusokkal.",
     "install": {
       "web": "Telepítés weben",
-      "app": "Telepítés Stremio alkalmazásban"
+      "app": "Telepítés Stremio appban"
     }
   },
   "catalogs": {

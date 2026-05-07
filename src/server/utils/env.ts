@@ -27,4 +27,4 @@ if (!validationResult.success) {
   process.exit(1);
 }
 
-export const env = EnvSchema.parse(process.env);
+export const env = validationResult.data;

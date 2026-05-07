@@ -1,10 +1,16 @@
 import z from "zod";
 
+import { SupportedLanguageSchema } from "#translations/i18n.ts";
+
 import { AddonMediaTypeList } from "./constants.ts";
 import { mdblistCatalogIds } from "./sources/index.ts";
 import type { MDBListCatalogNames } from "./sources/types.ts";
 
-export const MetaHandlerTmdbPathSchema = z.object({
+const LanguagePathSchema = z.object({
+  language: SupportedLanguageSchema,
+});
+
+export const MetaHandlerTmdbPathSchema = LanguagePathSchema.extend({
   type: z.enum(AddonMediaTypeList),
   id: z
     .string()
@@ -14,10 +20,12 @@ export const MetaHandlerTmdbPathSchema = z.object({
     .transform((id) => parseInt(id)), // Convert to number
 });
 
-export const MetaHandlerImdbPathSchema = z.object({
+export const MetaHandlerImdbPathSchema = LanguagePathSchema.extend({
   type: z.enum(AddonMediaTypeList),
   id: z.string().transform((id) => id.replace(/\.json$/, "")), // Remove .json suffix
 });
+
+export const ManifestPathSchema = LanguagePathSchema;
 
 function createExtraSchema<OutputType>(schema: z.ZodType<OutputType>) {
   return z
@@ -52,17 +60,17 @@ export type SearchExtra = z.infer<typeof SearchExtraSchema>;
 
 export type SkipExtra = Omit<SearchExtra, "search">;
 
-export const SearchCatalogPathSchema = z.object({
+export const SearchCatalogPathSchema = LanguagePathSchema.extend({
   type: z.enum(AddonMediaTypeList),
   extra: createExtraSchema(SearchExtraSchema),
 });
 
-export const PopularCatalogPathSchema = z.object({
+export const PopularCatalogPathSchema = LanguagePathSchema.extend({
   type: z.enum(AddonMediaTypeList),
   extra: createExtraSchema(BaseExtraSchema),
 });
 
-export const MdblistCatalogPathSchema = z.object({
+export const MdblistCatalogPathSchema = LanguagePathSchema.extend({
   type: z.enum(AddonMediaTypeList),
   catalogId: z
     .enum(mdblistCatalogIds.map((id) => `mdblist-${id}` as const))

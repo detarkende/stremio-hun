@@ -2,17 +2,24 @@ FROM node:25-alpine AS base
 
 WORKDIR /app
 
-FROM base AS prod-deps
+FROM base AS deps
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY patches ./patches
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile --ignore-scripts
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --ignore-scripts
+
+FROM deps AS build
+COPY . .
+
+ARG APP_VERSION=0.0.0-dev
+ENV APP_VERSION=${APP_VERSION}
+
+RUN pnpm build
 
 FROM base AS prod
-COPY --from=prod-deps /app/node_modules /app/node_modules
-COPY . .
+COPY --from=build /app/dist /app/dist
 
 ARG APP_VERSION=0.0.0-dev
 ENV APP_VERSION=${APP_VERSION}
@@ -25,4 +32,4 @@ ENV DB_PATH=/data/database.db
 
 EXPOSE ${PORT}
 
-CMD [ "node", "--import=tsx", "index.ts" ]
+CMD [ "node", "--enable-source-maps", "dist/server/index.mjs" ]

@@ -3,11 +3,14 @@
 A Stremio addon that provides Hungarian-language metadata and curated catalogs for movies and TV shows.
 
 > [!NOTE]
-> While this addon is configured for Hungarian content out of the box, it's built with customizability in mind.
-> You can adapt it to any language or region by:
+> This addon supports two locales out of the box with language-specific API routes:
 >
-> - changing the `TMDB_LANGUAGE` environment variable,
-> - updating [`lib/translations.json`](lib/translations.json) with your translations, and
+> - `hu-HU`
+> - `en-US`
+>
+> You can adapt it further by:
+>
+> - updating [`lib/translations/hu-HU.json`](lib/translations/hu-HU.json) and [`lib/translations/en-US.json`](lib/translations/en-US.json), and
 > - replacing the curated lists in [`lib/sources/mdblist-lists.json`](lib/sources/mdblist-lists.json).
 
 ## Features
@@ -21,6 +24,15 @@ A Stremio addon that provides Hungarian-language metadata and curated catalogs f
   - Apple TV+ Magyarország
 - **Search** — Find movies and TV shows with Hungarian metadata
 - **Popular content** — Browse trending movies and series
+
+## Language-specific manifests
+
+Use one of the supported language routes when installing the addon:
+
+- Hungarian: `/api/hu-HU/manifest.json`
+- English: `/api/en-US/manifest.json`
+
+Unsupported language routes are rejected with an error response.
 
 ## Tech Stack
 
@@ -41,7 +53,7 @@ A Stremio addon that provides Hungarian-language metadata and curated catalogs f
 | `MDBLIST_API_KEY`    | Yes         | —                   | MDBList API key                                                       |
 | `DB_PATH`            | Conditional | `/data/database.db` | Path to SQLite database file; required outside Docker unless provided |
 | `PORT`               | No          | `3000`              | Server port                                                           |
-| `TMDB_LANGUAGE`      | No          | `hu-HU`             | TMDB language code                                                    |
+| `TMDB_LANGUAGE`      | No          | `hu-HU`             | Default language used on the landing page (`/`)                       |
 | `RATE_LIMIT_ENABLED` | No          | `true`              | Enable rate limiting                                                  |
 | `HTTP_CACHE_ENABLED` | No          | `true`              | Enable HTTP response caching                                          |
 
