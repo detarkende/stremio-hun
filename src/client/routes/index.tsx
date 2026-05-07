@@ -26,7 +26,10 @@ function Index() {
 
   const manifestUrl = useMemo(() => {
     const url = apiClient.api[":language"].manifest.$url({ param: { language } });
-    const webAddonUrl = url.toString();
+    let webAddonUrl = url.toString();
+    if (!webAddonUrl.endsWith(".json")) {
+      webAddonUrl += ".json";
+    }
     const appUrl = webAddonUrl.replace(/^https?:/, "stremio:");
     const webInstallUrl = `https://web.stremio.com/#/addons?addon=${encodeURIComponent(webAddonUrl)}`;
     return {

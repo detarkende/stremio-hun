@@ -14,7 +14,6 @@ export const MetaHandlerTmdbPathSchema = LanguagePathSchema.extend({
   type: z.enum(AddonMediaTypeList),
   id: z
     .string()
-    .transform((id) => id.replace(/\.json$/, "")) // Remove .json suffix
     .transform((id) => id.replace(/^tmdb-/, "")) // Remove tmdb- prefix if present
     .refine((id) => !isNaN(parseInt(id)), "Invalid ID") // Validate that the remaining string is a number
     .transform((id) => parseInt(id)), // Convert to number
@@ -22,7 +21,7 @@ export const MetaHandlerTmdbPathSchema = LanguagePathSchema.extend({
 
 export const MetaHandlerImdbPathSchema = LanguagePathSchema.extend({
   type: z.enum(AddonMediaTypeList),
-  id: z.string().transform((id) => id.replace(/\.json$/, "")), // Remove .json suffix
+  id: z.string(),
 });
 
 export const ManifestPathSchema = LanguagePathSchema;
@@ -31,7 +30,6 @@ function createExtraSchema<OutputType>(schema: z.ZodType<OutputType>) {
   return z
     .string()
     .default("")
-    .transform((query) => query.replace(/\.json$/, "")) // Remove .json suffix
     .refine((queryString) => {
       try {
         const query = new URLSearchParams(queryString);
