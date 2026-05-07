@@ -2,7 +2,7 @@ import { TMDB, type Images } from "tmdb-ts";
 
 import { env } from "#server/utils/env.ts";
 import { fetch } from "#server/utils/http-cache.ts";
-import type { SupportedLanguage } from "#translations/i18n.ts";
+import { SupportedLanguages, type SupportedLanguage } from "#translations/i18n.ts";
 
 import { AddonMediaType } from "../constants.ts";
 import type { MetaDetail, MetaPreview } from "../stremio.types.ts";
@@ -49,7 +49,7 @@ export async function getMovieByTmdbId(
   language: SupportedLanguage,
 ): Promise<MetaDetail> {
   const movie = await tmdb.movies.details(tmdbId, ["credits", "external_ids", "images"], language, {
-    include_image_language: `${language},en,null`,
+    include_image_language: createImageLanguageList(language),
   });
   const { logoUrl, backdropUrl, posterUrl } = getMediaImages(movie.images, language);
 
@@ -72,7 +72,7 @@ export async function getTvShowByTmdbId(
     tmdbId,
     ["aggregate_credits", "external_ids", "images"],
     language,
-    { include_image_language: `${language},en,null` },
+    { include_image_language: createImageLanguageList(language) },
   );
 
   const seasons = await Promise.all(
@@ -213,10 +213,10 @@ export async function getMdblistCatalog(
       const tmdbDetails =
         mediaType === "movie"
           ? await tmdb.movies.details(tmdbId, ["images", "external_ids"], language, {
-              include_image_language: `${language},en,null`,
+              include_image_language: createImageLanguageList(language),
             })
           : await tmdb.tvShows.details(tmdbId, ["images", "external_ids"], language, {
-              include_image_language: `${language},en,null`,
+              include_image_language: createImageLanguageList(language),
             });
 
       const { logoUrl, posterUrl, backdropUrl } = getMediaImages(tmdbDetails.images, language);
@@ -247,24 +247,36 @@ export function getMediaImages(images: Omit<Images, "id">, language: SupportedLa
 
   const bestLogo =
     images.logos.find((logo) => logo.iso_639_1 === iso_639_1) ||
+    images.logos.find((logo) => logo.iso_639_1 === "en") ||
     images.logos.find((logo) => logo.iso_639_1 === null) ||
-    images.logos.find((logo) => logo.iso_639_1 === "en");
+    images.logos[0];
+
+  const bestPoster =
+    images.posters.find((poster) => poster.iso_639_1 === iso_639_1) ||
+    images.posters.find((poster) => poster.iso_639_1 === "en") ||
+    images.posters.find((poster) => poster.iso_639_1 === null) ||
+    images.posters[0];
 
   const bestBackdrop =
     images.backdrops.find((backdrop) => backdrop.iso_639_1 === null) ||
     images.backdrops.find((backdrop) => backdrop.iso_639_1 === iso_639_1) ||
-    images.backdrops.find((backdrop) => backdrop.iso_639_1 === "en");
-
-  const bestPoster =
-    images.posters.find((poster) => poster.iso_639_1 === iso_639_1) ||
-    images.posters.find((poster) => poster.iso_639_1 === null) ||
-    images.posters.find((poster) => poster.iso_639_1 === "en");
+    images.backdrops.find((backdrop) => backdrop.iso_639_1 === "en") ||
+    images.backdrops[0];
 
   return {
     logoUrl: bestLogo ? createImageUrl(bestLogo.file_path) : undefined,
     backdropUrl: bestBackdrop ? createImageUrl(bestBackdrop.file_path) : undefined,
     posterUrl: bestPoster ? createImageUrl(bestPoster.file_path) : undefined,
   };
+}
+
+export function createImageLanguageList(preferredLanguage: SupportedLanguage): string {
+  const iso_639_1 = (language: string) => language.split("-")[0];
+  const list = new Set<string>([iso_639_1(preferredLanguage), "en", "null"]);
+  for (const supportedLanguage of Object.values(SupportedLanguages)) {
+    list.add(iso_639_1(supportedLanguage));
+  }
+  return Array.from(list).join(",");
 }
 
 export const TmdbImageSizes = {
