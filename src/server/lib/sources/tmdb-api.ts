@@ -266,7 +266,7 @@ export function getMediaImages(images: Omit<Images, "id">, language: SupportedLa
   return {
     logoUrl: bestLogo ? createImageUrl(bestLogo.file_path) : undefined,
     backdropUrl: bestBackdrop ? createImageUrl(bestBackdrop.file_path) : undefined,
-    posterUrl: bestPoster ? createImageUrl(bestPoster.file_path) : undefined,
+    posterUrl: bestPoster ? createImageUrl(bestPoster.file_path, TmdbImageSizes.POSTER) : undefined,
   };
 }
 
