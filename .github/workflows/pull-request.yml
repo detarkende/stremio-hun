@@ -51,6 +51,8 @@ jobs:
             command: pnpm lint:check
           - name: Type check
             command: pnpm typecheck
+          - name: Build
+            command: pnpm build
 
     steps:
       - name: Check out repository
