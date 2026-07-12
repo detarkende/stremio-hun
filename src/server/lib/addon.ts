@@ -2,36 +2,26 @@ import { getTranslations, type SupportedLanguage } from "#translations/i18n.ts";
 
 import { env } from "../utils/env.ts";
 import { AddonMediaType } from "./constants.ts";
-import type { SearchExtra, SkipExtra } from "./schemas.ts";
+import type { SearchExtra } from "./schemas.ts";
 import {
   getMovieByTmdbId,
-  getPopularMovies,
-  getPopularTvShows,
-  getTmdbIdByImdbId,
   getTvShowByTmdbId,
+  getChannel,
+  isChannelId,
   mdbListCatalogDetails,
+  MediaklikkTvSource,
   searchMovies,
   searchTvShows,
 } from "./sources/index.ts";
-import type { Manifest, ManifestCatalog, MetaDetail, MetaPreview } from "./stremio.types.ts";
+import type {
+  Manifest,
+  ManifestCatalog,
+  MetaDetail,
+  MetaPreview,
+  Stream,
+} from "./stremio.types.ts";
 
-function getPopularCatalogs(language: SupportedLanguage): ManifestCatalog[] {
-  const t = getTranslations(language);
-  return [
-    {
-      type: AddonMediaType.MOVIE,
-      id: "popular",
-      name: t.catalogs.popular,
-      extra: [{ name: "skip" }],
-    },
-    {
-      type: AddonMediaType.SERIES,
-      id: "popular",
-      name: t.catalogs.popular,
-      extra: [{ name: "skip" }],
-    },
-  ];
-}
+const mediaklikkTvSource = new MediaklikkTvSource();
 
 const mdblistCatalogs: ManifestCatalog[] = mdbListCatalogDetails.flatMap(
   (catalog): ManifestCatalog[] => {
@@ -57,11 +47,15 @@ export async function getManifest(language: SupportedLanguage): Promise<Manifest
     name: "Stremio Hun",
     description: "A Stremio addon for Hungarian content.",
     version: env.APP_VERSION,
-    types: [AddonMediaType.MOVIE, AddonMediaType.SERIES],
+    types: [AddonMediaType.MOVIE, AddonMediaType.SERIES, "tv"],
     logo: `${env.ADDON_URL}/logo.png`,
     catalogs: [
+      {
+        type: "tv",
+        id: "mediaklikk",
+        name: "Mediaklikk",
+      },
       ...mdblistCatalogs,
-      ...getPopularCatalogs(language),
       {
         type: AddonMediaType.SERIES,
         id: "search",
@@ -81,21 +75,57 @@ export async function getManifest(language: SupportedLanguage): Promise<Manifest
         ],
       },
     ],
-    resources: ["meta"],
-    idPrefixes: ["tt", "tmdb-"],
+    resources: ["meta", "stream"],
+    idPrefixes: ["tt", "tmdb-", "mediaklikk-"],
   };
 }
 
-export async function getMediaByImdbId(
-  imdbId: string,
-  mediaType: AddonMediaType,
-  language: SupportedLanguage,
-): Promise<MetaDetail> {
-  const tmdbId = await getTmdbIdByImdbId(imdbId, mediaType, language);
-  if (!tmdbId) {
-    throw new Error(`TMDB ID not found for IMDb ID: ${imdbId}`);
+export async function getMediaklikkTvCatalog(): Promise<MetaPreview[]> {
+  const availableChannels = await mediaklikkTvSource.getAvailableChannels();
+  return availableChannels.map((channel) => ({
+    id: `mediaklikk-${channel.id}`,
+    type: "tv",
+    name: channel.displayName,
+    description: channel.description,
+    poster: `${env.ADDON_URL}${channel.poster}`,
+    posterShape: "landscape",
+  }));
+}
+
+export function getMediaklikkTvMeta(channelId: string): MetaDetail | null {
+  const channelIdWithoutPrefix = channelId.replace(/^mediaklikk-/, "");
+  if (!isChannelId(channelIdWithoutPrefix)) {
+    return null;
   }
-  return await getMediaByTmdbId(tmdbId, mediaType, language);
+
+  const channel = getChannel(channelIdWithoutPrefix);
+  return {
+    id: `mediaklikk-${channelIdWithoutPrefix}`,
+    type: "tv",
+    name: channel.displayName,
+    description: channel.description,
+    poster: `${env.ADDON_URL}${channel.poster}`,
+  };
+}
+
+export async function getMediaklikkTvStream(channelId: string): Promise<Stream[]> {
+  const channelIdWithoutPrefix = channelId.replace(/^mediaklikk-/, "");
+  if (!isChannelId(channelIdWithoutPrefix)) {
+    return [];
+  }
+
+  const url = await mediaklikkTvSource.getChannelStreamUrl(channelIdWithoutPrefix);
+  if (!url) {
+    return [];
+  }
+
+  return [
+    {
+      name: "Mediaklikk",
+      description: "Live HLS stream",
+      url,
+    },
+  ];
 }
 
 export async function getMediaByTmdbId(
@@ -125,21 +155,6 @@ export async function searchMedia(
     }
     case AddonMediaType.SERIES: {
       return await searchTvShows({ keyword: search, skip, language });
-    }
-  }
-}
-
-export async function getPopularMediaResults(
-  type: AddonMediaType,
-  extra: SkipExtra,
-  language: SupportedLanguage,
-): Promise<MetaPreview[]> {
-  switch (type) {
-    case AddonMediaType.MOVIE: {
-      return await getPopularMovies({ ...extra, language });
-    }
-    case AddonMediaType.SERIES: {
-      return await getPopularTvShows({ ...extra, language });
     }
   }
 }

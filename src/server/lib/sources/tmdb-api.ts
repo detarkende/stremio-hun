@@ -136,62 +136,6 @@ export async function searchTvShows({
   return results.map(tmdbTvShowToMetaPreview);
 }
 
-// ==========================
-// === Get Popular Media ===
-// ==========================
-
-export async function getPopularTvShows({
-  skip,
-  language,
-}: {
-  skip: number;
-  language: SupportedLanguage;
-}): Promise<MetaPreview[]> {
-  const page = Math.floor(skip / TMDB_PAGE_SIZE) + 1;
-  const { results } = await tmdb.tvShows.popular({ language, page });
-  return results.map(tmdbTvShowToMetaPreview);
-}
-
-export async function getPopularMovies({
-  skip,
-  language,
-}: {
-  skip: number;
-  language: SupportedLanguage;
-}): Promise<MetaPreview[]> {
-  const page = Math.floor(skip / TMDB_PAGE_SIZE) + 1;
-  const { results } = await tmdb.movies.popular({ language, page });
-  return results.map(tmdbMovieToMetaPreview);
-}
-
-// =================
-// === Top Rated ===
-// =================
-
-export async function getTopRatedTvShows({
-  skip,
-  language,
-}: {
-  skip: number;
-  language: SupportedLanguage;
-}): Promise<MetaPreview[]> {
-  const page = Math.floor(skip / TMDB_PAGE_SIZE) + 1;
-  const { results } = await tmdb.tvShows.topRated({ language, page });
-  return results.map(tmdbTvShowToMetaPreview);
-}
-
-export async function getTopRatedMovies({
-  skip,
-  language,
-}: {
-  skip: number;
-  language: SupportedLanguage;
-}): Promise<MetaPreview[]> {
-  const page = Math.floor(skip / TMDB_PAGE_SIZE) + 1;
-  const { results } = await tmdb.movies.topRated({ language, page });
-  return results.map(tmdbMovieToMetaPreview);
-}
-
 // ========================
 // === MDBList Catalogs ===
 // ========================

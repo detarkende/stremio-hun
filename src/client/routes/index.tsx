@@ -25,7 +25,7 @@ function Index() {
   const t = getTranslations(language);
 
   const manifestUrl = useMemo(() => {
-    const url = apiClient.api[":language"].manifest.$url({ param: { language } });
+    const url = apiClient[":language"].manifest.$url({ param: { language } });
     let webAddonUrl = url.toString();
     if (!webAddonUrl.endsWith(".json")) {
       webAddonUrl += ".json";

@@ -1,5 +1,5 @@
 import { hc } from "hono/client";
 
-import type { AppType } from "#server/index.ts";
+import type { ApiType } from "#server/index.ts";
 
-export const apiClient = hc<AppType>(window.location.origin);
+export const apiClient = hc<ApiType>(new URL("/api", window.location.origin).toString());
