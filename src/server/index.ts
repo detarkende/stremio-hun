@@ -4,9 +4,10 @@ import { cors } from "hono/cors";
 
 import {
   getManifest,
-  getMediaByImdbId,
   getMediaByTmdbId,
-  getPopularMediaResults,
+  getMediaklikkTvCatalog,
+  getMediaklikkTvMeta,
+  getMediaklikkTvStream,
   searchMedia,
 } from "./lib/addon.ts";
 import { rateLimit } from "./lib/middlewares/rate-limit.ts";
@@ -15,12 +16,12 @@ import {
   MdblistCatalogPathSchema,
   MetaHandlerImdbPathSchema,
   MetaHandlerTmdbPathSchema,
-  PopularCatalogPathSchema,
   SearchCatalogPathSchema,
 } from "./lib/schemas.ts";
-import { getMdblistCatalog } from "./lib/sources/index.ts";
+import { getMdblistCatalog, getTmdbIdByImdbId } from "./lib/sources/index.ts";
 import { env } from "./utils/env.ts";
 import { srvxAdapter } from "./utils/srvx.ts";
+import { applyStremioProtocol } from "./utils/stremio-protocol.ts";
 
 const api = new Hono()
   .get("/:language/manifest", zValidator("param", ManifestPathSchema), async (c) => {
@@ -33,11 +34,20 @@ const api = new Hono()
     zValidator("param", MetaHandlerImdbPathSchema),
     async (c) => {
       const { language, type, id: imdbId } = c.req.valid("param");
-      const meta = await getMediaByImdbId(imdbId, type, language);
+      const tmdbId = await getTmdbIdByImdbId(imdbId, type, language);
+      if (!tmdbId) {
+        return c.notFound();
+      }
+      const meta = await getMediaByTmdbId(tmdbId, type, language);
       return c.json({ meta });
     },
   );
 api
+  .get("/:language/meta/tv/:id{mediaklikk-.*}", async (c) => {
+    const { id } = c.req.param();
+    const meta = getMediaklikkTvMeta(id);
+    return meta ? c.json({ meta }) : c.notFound();
+  })
   .get(
     "/:language/meta/:type/:id{tmdb-[0-9]+}",
     zValidator("param", MetaHandlerTmdbPathSchema),
@@ -47,21 +57,16 @@ api
       return c.json({ meta });
     },
   )
+  .get("/:language/catalog/tv/mediaklikk", async (c) => {
+    const metas = await getMediaklikkTvCatalog();
+    return c.json({ metas });
+  })
   .get(
     "/:language/catalog/:type/search/:extra",
     zValidator("param", SearchCatalogPathSchema),
     async (c) => {
       const { language, type, extra } = c.req.valid("param");
       const metas = await searchMedia(type, extra, language);
-      return c.json({ metas });
-    },
-  )
-  .get(
-    "/:language/catalog/:type/popular/:extra?",
-    zValidator("param", PopularCatalogPathSchema),
-    async (c) => {
-      const { language, type, extra } = c.req.valid("param");
-      const metas = await getPopularMediaResults(type, extra, language);
       return c.json({ metas });
     },
   )
@@ -73,28 +78,23 @@ api
       const metas = await getMdblistCatalog(type, catalogId, language);
       return c.json({ metas });
     },
-  );
+  )
+  .get("/:language/stream/tv/:id{mediaklikk-.*}", async (c) => {
+    const { id } = c.req.param();
+    const streams = await getMediaklikkTvStream(id);
+    return c.json({ streams });
+  });
 
-const app = new Hono()
-  .use(env.RATE_LIMIT_ENABLED ? rateLimit : (_c, next) => next())
-  .use(cors())
-  .route("/api", api);
+const app = new Hono();
+if (env.RATE_LIMIT_ENABLED) {
+  app.use(rateLimit);
+}
+app.use(cors());
+app.route("/api", api);
 
-export type AppType = typeof app;
+applyStremioProtocol(app);
 
-// Stremio requires all addon URLs to end in `.json`, but Hono's router matches
-// paths before any middleware runs, so route patterns like `/:id{tt[0-9]+}`
-// would never match `tt123456.json`. Stripping the suffix here, at the fetch
-// entry point, keeps it transparent to every route and schema in the app.
-const _fetch = app.fetch.bind(app);
-app.fetch = (req, env, ctx) => {
-  const url = new URL(req.url);
-  if (url.pathname.endsWith(".json")) {
-    url.pathname = url.pathname.slice(0, -5);
-    req = new Request(url.toString(), req);
-  }
-  return _fetch(req, env, ctx);
-};
+export type ApiType = typeof api;
 
 export default srvxAdapter(app, {
   port: env.PORT,

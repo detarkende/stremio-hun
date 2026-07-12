@@ -1,5 +1,6 @@
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
+import basicSsl from "@vitejs/plugin-basic-ssl";
 import react from "@vitejs/plugin-react";
 import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
@@ -12,6 +13,10 @@ export default defineConfig({
     nitro({
       serverEntry: "src/server/index.ts",
       sourcemap: true,
+      serverDir: "./server",
+      output: {
+        dir: "./dist",
+      },
     }),
     tailwindcss(),
     tanstackRouter({
@@ -21,6 +26,7 @@ export default defineConfig({
       generatedRouteTree: "src/client/routeTree.gen.ts",
     }),
     react(),
+    basicSsl(),
   ],
   resolve: {
     tsconfigPaths: true,

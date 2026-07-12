@@ -16,6 +16,16 @@ const EnvSchema = z.object({
     .string()
     .default("0.0.0-dev")
     .transform((version) => version.replace(/^v/, "")), // Remove leading 'v' if present
+  MEDIAKLIKK_CACHE_TTL: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(5 * 60), // 5 minutes
+  MEDIAKLIKK_CACHE_MAX_STALE_TIME: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(24 * 60 * 60), // 24 hours
 });
 
 export type Env = z.infer<typeof EnvSchema>;
