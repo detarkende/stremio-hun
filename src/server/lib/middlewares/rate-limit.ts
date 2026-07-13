@@ -1,4 +1,4 @@
-import { and, eq, gt, sql } from "drizzle-orm";
+import { and, eq, gt, lte, sql } from "drizzle-orm";
 import { createMiddleware } from "hono/factory";
 
 import { db, visitsTable } from "#server/db/index.ts";
@@ -34,7 +34,7 @@ export const rateLimit = createMiddleware(async function (c, next) {
   // Periodically clean up old records to prevent the table from growing indefinitely
   if (now - lastCleanup > cleanupInterval) {
     lastCleanup = now;
-    db.delete(visitsTable).where(gt(visitsTable.timestamp, windowStart)).run();
+    db.delete(visitsTable).where(lte(visitsTable.timestamp, windowStart)).run();
   }
 
   if (visitCount > maxRequests) {

@@ -1,7 +1,7 @@
 import { AvailableLanguages } from "tmdb-ts";
 import z from "zod";
 
-import { logger } from "./logger";
+import { logger } from "./logger.ts";
 
 const EnvSchema = z.object({
   NODE_ENV: z.enum(["development", "production"]).default("production"),
