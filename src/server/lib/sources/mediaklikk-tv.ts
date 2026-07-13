@@ -1,19 +1,8 @@
-import { DatabaseSync } from "node:sqlite";
+import { eq } from "drizzle-orm";
 
-import { sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/node-sqlite";
-
-import { getDBPath } from "#server/utils/db.ts";
+import { db, mediaklikkChannelCacheTable } from "#server/db/index.ts";
 import { env } from "#server/utils/env.ts";
-
-const sqlite = new DatabaseSync(getDBPath());
-const db = drizzle({ client: sqlite });
-
-db.run(sql`CREATE TABLE IF NOT EXISTS mediaklikk_channel_cache (
-  channel_id TEXT PRIMARY KEY,
-  url TEXT NOT NULL,
-  updated_at INTEGER NOT NULL
-) STRICT;`);
+import { logger } from "#server/utils/logger.ts";
 
 interface Channel {
   displayName: string;
@@ -109,7 +98,7 @@ async function getPlayDataForChannel(channelId: ChannelId): Promise<PlayData[] |
     const playData = JSON.parse(playDataMatch.groups.json) as PlayData[];
     return playData;
   } catch (err) {
-    console.error(`Failed to fetch play data for channel ${channelId}`, err);
+    logger.error(`Failed to fetch play data for channel ${channelId}`, err as Error);
     return null;
   }
 }
@@ -151,12 +140,16 @@ export class MediaklikkTvSource {
   }
 
   async getChannelStreamUrl(channelId: ChannelId): Promise<string | null> {
-    const cachedRow = db.get<{ url: string; updated_at: number }>(sql`
-      SELECT url, updated_at
-      FROM mediaklikk_channel_cache
-      WHERE channel_id = ${channelId};
-    `);
-    const cached = cachedRow ? { url: cachedRow.url, updatedAt: cachedRow.updated_at } : undefined;
+    const cachedRow = db
+      .select({
+        url: mediaklikkChannelCacheTable.url,
+        updatedAt: mediaklikkChannelCacheTable.updatedAt,
+      })
+      .from(mediaklikkChannelCacheTable)
+      .where(eq(mediaklikkChannelCacheTable.channelId, channelId))
+      .get();
+
+    const cached = cachedRow ? { url: cachedRow.url, updatedAt: cachedRow.updatedAt } : undefined;
     const now = Date.now();
     const lastAcceptedDate = now - env.MEDIAKLIKK_CACHE_TTL * 1000;
     const isStale = cached && cached.updatedAt < lastAcceptedDate;
@@ -196,13 +189,16 @@ export class MediaklikkTvSource {
       // Expired cached is better than no URL at all
       return cached && !isTooStale ? cached.url : null;
     }
-    db.run(sql`
-      INSERT INTO mediaklikk_channel_cache (channel_id, url, updated_at)
-      VALUES (${channelId}, ${hlsUrl}, ${Date.now()})
-      ON CONFLICT(channel_id) DO UPDATE SET
-        url = excluded.url,
-        updated_at = excluded.updated_at;
-    `);
+    db.insert(mediaklikkChannelCacheTable)
+      .values([{ channelId, url: hlsUrl, updatedAt: Date.now() }])
+      .onConflictDoUpdate({
+        target: mediaklikkChannelCacheTable.channelId,
+        set: {
+          url: hlsUrl,
+          updatedAt: Date.now(),
+        },
+      })
+      .run();
     return hlsUrl;
   }
 }

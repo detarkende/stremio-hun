@@ -1,22 +1,9 @@
-import { DatabaseSync } from "node:sqlite";
-
-import { sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/node-sqlite";
+import { and, eq, gt, sql } from "drizzle-orm";
 import { createMiddleware } from "hono/factory";
 
-import { getDBPath } from "#server/utils/db.ts";
+import { db, visitsTable } from "#server/db/index.ts";
 import { env } from "#server/utils/env.ts";
 import { getConnInfo } from "#server/utils/srvx.ts";
-
-const sqlite = new DatabaseSync(getDBPath());
-const db = drizzle({ client: sqlite });
-
-db.run(sql`CREATE TABLE IF NOT EXISTS visits (
-  ip TEXT NOT NULL,
-  timestamp INTEGER NOT NULL
-) STRICT;`);
-
-db.run(sql`CREATE INDEX IF NOT EXISTS idx_visits_ip_timestamp ON visits (ip, timestamp);`);
 
 let lastCleanup = 0;
 const cleanupInterval = env.RATE_LIMIT_WINDOW;
@@ -34,20 +21,23 @@ export const rateLimit = createMiddleware(async function (c, next) {
   const now = Math.floor(Date.now() / 1000);
   const windowStart = now - windowSeconds;
 
-  db.run(sql`INSERT INTO visits (ip, timestamp) VALUES (${ip}, ${now})`);
+  db.insert(visitsTable)
+    .values([{ ip, timestamp: now }])
+    .run();
 
-  const { count } = db.get<{ count: number }>(sql`
-    SELECT COUNT(*) as count FROM visits
-    WHERE ip = ${ip} AND timestamp > ${windowStart};
-  `);
+  const { visitCount } = db
+    .select({ visitCount: sql`count(*)`.mapWith(Number) })
+    .from(visitsTable)
+    .where(and(eq(visitsTable.ip, ip), gt(visitsTable.timestamp, windowStart)))
+    .get() ?? { visitCount: 0 };
 
   // Periodically clean up old records to prevent the table from growing indefinitely
   if (now - lastCleanup > cleanupInterval) {
     lastCleanup = now;
-    db.run(sql`DELETE FROM visits WHERE timestamp <= ${windowStart};`);
+    db.delete(visitsTable).where(gt(visitsTable.timestamp, windowStart)).run();
   }
 
-  if (count > maxRequests) {
+  if (visitCount > maxRequests) {
     c.header("Retry-After", windowSeconds.toString());
     return c.text("Too Many Requests", 429);
   }

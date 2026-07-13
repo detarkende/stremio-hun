@@ -1,0 +1,96 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "id": "da0c7d29-7b3e-4ec4-9ffe-9d7702a9cb78",
+  "prevIds": [
+    "00000000-0000-0000-0000-000000000000"
+  ],
+  "ddl": [
+    {
+      "name": "mediaklikk_channel_cache",
+      "entityType": "tables"
+    },
+    {
+      "name": "visits",
+      "entityType": "tables"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "channel_id",
+      "entityType": "columns",
+      "table": "mediaklikk_channel_cache"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "url",
+      "entityType": "columns",
+      "table": "mediaklikk_channel_cache"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "table": "mediaklikk_channel_cache"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "ip",
+      "entityType": "columns",
+      "table": "visits"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "timestamp",
+      "entityType": "columns",
+      "table": "visits"
+    },
+    {
+      "columns": [
+        "channel_id"
+      ],
+      "nameExplicit": false,
+      "name": "mediaklikk_channel_cache_pk",
+      "table": "mediaklikk_channel_cache",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        {
+          "value": "ip",
+          "isExpression": false
+        },
+        {
+          "value": "timestamp",
+          "isExpression": false
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "origin": "manual",
+      "name": "idx_visits_ip_timestamp",
+      "entityType": "indexes",
+      "table": "visits"
+    }
+  ],
+  "renames": []
+}

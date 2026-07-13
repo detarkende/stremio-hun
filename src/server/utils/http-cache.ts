@@ -7,7 +7,8 @@ import {
   cacheStores,
 } from "undici";
 
-import { getDBPath } from "./db.ts";
+import { getDBPath } from "#server/db/index.ts";
+
 import { env } from "./env.ts";
 
 const agent = new Agent().compose(
