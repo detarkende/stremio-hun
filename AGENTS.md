@@ -40,6 +40,9 @@ src/
     assets/main.css          Global Tailwind entry point
   server/
     index.ts                 Hono routes and srvx server entry point
+    db/
+      index.ts               Shared SQLite/Drizzle connection and migrations
+      schema.ts               Drizzle table definitions
     lib/
       addon.ts               Stremio manifest, metadata, catalog, search, and stream handlers
       constants.ts            Addon media-type constants
@@ -47,7 +50,8 @@ src/
       stremio.types.ts        Stremio response types
       sources/                TMDB, MDBList, and Mediaklikk integrations
       middlewares/            Server middleware such as rate limiting
-    utils/                    Environment, database, cache, and protocol helpers
+    utils/                    Environment, cache, logging, and protocol helpers
+drizzle/                        Drizzle SQL migrations and snapshots
 translations/
   i18n.ts                    Supported languages and translation lookup
   hu-HU.json                Hungarian UI/catalog translations
@@ -62,6 +66,8 @@ The README contains some historical `lib/...` paths. The current source paths ar
 
 - `src/server/index.ts` owns the HTTP surface under `/api`.
 - Language is part of the API path: `/api/hu-HU/...` or `/api/en-US/...`. Route schemas reject unsupported languages.
+- `src/server/db/index.ts` owns the shared SQLite connection and runs Drizzle migrations at startup. Import `db` and table definitions from `#server/db/index.ts` instead of opening a second connection or creating tables inline.
+- `src/server/lib/middlewares/rate-limit.ts` stores request visits in `visitsTable`; `src/server/lib/sources/mediaklikk-tv.ts` stores stream URLs in `mediaklikkChannelCacheTable`.
 - `src/server/lib/addon.ts` translates HTTP-level requests into Stremio manifests, metadata, catalog, search, and stream responses.
 - TMDB and MDBList behavior lives in `src/server/lib/sources/`.
 - `translations/i18n.ts` is the source of truth for supported languages and translation lookup. Add a translation file and update this module when adding a locale.
@@ -75,6 +81,7 @@ pnpm install
 pnpm dev                 # Vite development server
 pnpm build               # Production Vite/Nitro build into dist/
 pnpm preview             # Run the built server
+pnpm exec drizzle-kit generate  # Generate a migration after schema changes
 pnpm typecheck           # TypeScript native preview, no emit
 pnpm lint:check          # Oxlint
 pnpm fmt:check           # Oxfmt check
@@ -100,7 +107,9 @@ There is no test script currently. For behavior changes, use the narrowest avail
 
 The server validates environment variables at startup in `src/server/utils/env.ts`. Required values include `ADDON_URL`, `TMDB_ACCESS_TOKEN`, `MDBLIST_API_KEY`, and `DB_PATH`. Important optional settings include `PORT`, `TMDB_LANGUAGE`, rate-limit settings, HTTP-cache settings, and Mediaklikk cache TTLs. See the README for the complete table.
 
-SQLite parent directories are created by `src/server/utils/db.ts`. Local SQLite runtime files may appear under `tmp/`; do not treat generated database files as source changes. Never commit API tokens or local `.env` files.
+`src/server/db/index.ts` creates the SQLite parent directory when needed and applies migrations from `drizzle/` during startup. Development resolves migrations from the repository; production bundles them alongside the server during `pnpm build`. Local SQLite runtime files may appear under `tmp/`; do not treat generated database files as source changes. Never commit API tokens or local `.env` files.
+
+LogTape writes pretty output in development and JSON Lines output in production. Use the shared logger from `src/server/utils/logger.ts` for server diagnostics.
 
 ## CI/CD
 
@@ -109,6 +118,7 @@ Pull requests targeting `master` run:
 - Conventional commit validation for the pull-request commit range.
 - In parallel: format check, Oxlint, typecheck, and production build.
 - Dependencies are installed with `pnpm install --frozen-lockfile` on Node.js 25.
+- The production build must include the `drizzle/` migrations because the runtime applies them on startup.
 
 Pushes to `master` run semantic-release using the configured GitHub token and may create a release. A published release triggers the Docker workflow, which builds and publishes `linux/amd64` and `linux/arm64` images to GHCR with semver tags and `latest`.
 
