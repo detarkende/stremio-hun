@@ -12,7 +12,8 @@ export default defineConfig({
   },
   plugins: [
     viteStaticCopy({
-      targets: [{ src: "drizzle/**/*", dest: "../drizzle", rename: { stripBase: 1 } }],
+      targets: [{ src: "drizzle/**/*", dest: "drizzle", rename: { stripBase: 1 } }],
+      environment: "nitro",
     }),
     nitro({
       serverEntry: "src/server/index.ts",
