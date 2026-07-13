@@ -12,7 +12,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "node --enable-source-maps --env-file-if-exists .env dist/server/index.mjs",
+    "preview": "NODE_ENV=production node --enable-source-maps --env-file-if-exists .env dist/server/index.mjs",
     "check": "pnpm run typecheck && pnpm run lint:check && pnpm run fmt:check",
     "typecheck": "tsgo --noEmit",
     "lint:check": "oxlint",
@@ -24,8 +24,8 @@
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.6",
+    "@logtape/logtape": "^2.2.4",
     "@tanstack/react-router": "^1.169.1",
-    "drizzle-orm": "1.0.0-beta.22",
     "hono": "^4.12.9",
     "lucide-react": "^1.3.0",
     "react": "^19.2.5",
@@ -38,6 +38,7 @@
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
+    "@logtape/pretty": "^2.2.4",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/github": "^12.0.6",
     "@semantic-release/release-notes-generator": "^14.1.0",
@@ -51,13 +52,17 @@
     "@typescript/native-preview": "7.0.0-dev.20260419.1",
     "@vitejs/plugin-basic-ssl": "^2.3.0",
     "@vitejs/plugin-react": "^6.0.1",
+    "dotenv": "^17.4.2",
+    "drizzle-kit": "1.0.0-rc.4",
+    "drizzle-orm": "1.0.0-rc.4",
     "husky": "^9.1.7",
     "nitro": "3.0.260429-beta",
     "oxfmt": "^0.45.0",
     "oxlint": "^1.60.0",
     "semantic-release": "^25.0.3",
     "tailwindcss": "^4.2.4",
-    "vite": "^8.0.10"
+    "vite": "^8.0.10",
+    "vite-plugin-static-copy": "^4.1.1"
   },
   "packageManager": "pnpm@10.10.0",
   "patchedDependencies": {

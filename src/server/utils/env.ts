@@ -1,7 +1,10 @@
 import { AvailableLanguages } from "tmdb-ts";
 import z from "zod";
 
+import { logger } from "./logger.ts";
+
 const EnvSchema = z.object({
+  NODE_ENV: z.enum(["development", "production"]).default("production"),
   PORT: z.coerce.number().int().positive().default(3000),
   ADDON_URL: z.url().transform((url) => url.replace(/\/+$/, "")), // Remove trailing slashes
   TMDB_ACCESS_TOKEN: z.string(),
@@ -33,7 +36,7 @@ export type Env = z.infer<typeof EnvSchema>;
 const validationResult = EnvSchema.safeParse(process.env);
 
 if (!validationResult.success) {
-  console.error("Invalid environment variables:\n", z.prettifyError(validationResult.error));
+  logger.error(`Invalid environment variables:\n ${z.prettifyError(validationResult.error)}`);
   process.exit(1);
 }
 
