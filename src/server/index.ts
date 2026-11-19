@@ -54,7 +54,7 @@ api
     async (c) => {
       const { language, type, id: tmdbId } = c.req.valid("param");
       const meta = await getMediaByTmdbId(tmdbId, type, language);
-      return c.json({ meta });
+      return c.json({ meta: { ...meta, id: c.req.param("id") } });
     },
   )
   .get("/:language/catalog/tv/mediaklikk", async (c) => {
