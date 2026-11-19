@@ -99,6 +99,9 @@ export function tmdbMovieToStremioMeta(result: TmdbMovieResults): MetaDetail {
     released: new Date(movie.release_date).toISOString(),
     releaseInfo: new Date(movie.release_date).getFullYear().toString(),
     website: movie.homepage,
+    behaviorHints: {
+      defaultVideoId: imdbId,
+    },
   };
 }
 
